@@ -1,0 +1,77 @@
+createOrReplace
+
+  table Calendar
+
+    column Date
+      dataType: dateTime
+      isKey
+      formatString: yyyy-mm-dd
+      summarizeBy: none
+      sourceColumn: Date
+
+    column Year
+      dataType: int64
+      formatString: 0
+      summarizeBy: none
+      sourceColumn: Year
+
+    column MonthName
+      dataType: string
+      summarizeBy: none
+      sourceColumn: MonthName
+
+    partition Calendar = calculated
+      mode: import
+      source =
+        ADDCOLUMNS(
+          CALENDAR(DATE(2024,1,1), DATE(2024,12,31)),
+          "Year", YEAR([Date]),
+          "MonthName", FORMAT([Date], "mmmm")
+        )
+
+  table Sales
+
+    column OrderDate
+      dataType: dateTime
+      formatString: yyyy-mm-dd
+      summarizeBy: none
+      sourceColumn: OrderDate
+
+    column ProductName
+      dataType: string
+      summarizeBy: none
+      sourceColumn: ProductName
+
+    column Quantity
+      dataType: int64
+      formatString: 0
+      summarizeBy: sum
+      sourceColumn: Quantity
+
+    column UnitPrice
+      dataType: double
+      formatString: "$"#,0.00
+      summarizeBy: sum
+      sourceColumn: UnitPrice
+
+    measure 'Total Sales' = SUMX(Sales, Sales[Quantity] * Sales[UnitPrice])
+      formatString: "$"#,0.00
+
+    measure 'Total Quantity' = SUM(Sales[Quantity])
+      formatString: #,0
+
+    partition Sales = calculated
+      mode: import
+      source =
+        DATATABLE(
+          "OrderDate", DATETIME,
+          "ProductName", STRING,
+          "Quantity", INTEGER,
+          "UnitPrice", DOUBLE,
+          {
+            {"2024-01-05", "Widget A", 10, 19.99},
+            {"2024-02-14", "Widget B", 5, 39.99},
+            {"2024-03-21", "Widget A", 8, 19.99},
+            {"2024-04-30", "Widget C", 12, 9.99}
+          }
+        )

@@ -1,0 +1,80 @@
+table Sales
+	lineageTag: 99d5bb83-751f-4056-a397-a75db5f20a47
+
+	measure 'Total Sales' = SUMX(Sales, Sales[Quantity] * Sales[UnitPrice])
+		formatString: "$"#,0.00
+		lineageTag: 32c663b1-2f73-4679-acbd-e9ad69b75def
+
+	measure 'Total Quantity' = SUM(Sales[Quantity])
+		formatString: #,0
+		lineageTag: aad4d0d5-0312-4819-a950-382c9f54cbb6
+
+	measure 'Order Count' = COUNTROWS(Sales)
+		formatString: #,0
+		lineageTag: b4c7d3e2-9a1f-4e6d-8b5c-2d3e4f5a6b7c
+
+	column OrderDate
+		lineageTag: e5156a46-9ea8-432e-8bf8-d076d47d0c17
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [OrderDate]
+
+		variation Variation
+			isDefault
+			relationship: 26ba562a-da63-4df6-a4d9-6399579421a9
+			defaultHierarchy: LocalDateTable_1448cdfe-3144-48f7-a557-437cc3d52d87.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductName
+		lineageTag: c3c77b05-dc16-4ec7-84b4-8939ac03ea3b
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [ProductName]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quantity
+		lineageTag: 9d2c3ebd-7c8d-425c-b056-66b3b41c67df
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Quantity]
+
+		annotation SummarizationSetBy = Automatic
+
+	column UnitPrice
+		lineageTag: cf9b795a-7946-4e29-bca4-6220997a669c
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [UnitPrice]
+
+		annotation SummarizationSetBy = Automatic
+
+	column QuantityBin = ROUNDDOWN(Sales[Quantity] / 5, 0) * 5
+		lineageTag: 7a3f9c12-4d5e-4b8a-9f21-3c8e6d1a2b4f
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column PriceBin = ROUNDDOWN(Sales[UnitPrice] / 10, 0) * 10
+		lineageTag: e5d8b2a1-6f3c-4a9e-8d7b-1f2a3c4d5e6f
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Sales = calculated
+		mode: import
+		source =
+				DATATABLE(
+				  "OrderDate", DATETIME,
+				  "ProductName", STRING,
+				  "Quantity", INTEGER,
+				  "UnitPrice", DOUBLE,
+				  {
+				    {"2024-01-05", "Widget A", 10, 19.99},
+				    {"2024-02-14", "Widget B", 5, 39.99},
+				    {"2024-03-21", "Widget A", 8, 19.99},
+				    {"2024-04-30", "Widget C", 12, 9.99}
+				  }
+				)
+

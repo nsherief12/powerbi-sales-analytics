@@ -1,0 +1,10 @@
+# Power BI local/machine-specific files
+*.pbix
+**/cache.abf
+**/localSettings.json
+**/.pbi/localSettings.json
+
+# OS/editor junk
+.DS_Store
+Thumbs.db
+.vscode

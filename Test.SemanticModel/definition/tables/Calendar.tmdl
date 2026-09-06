@@ -1,0 +1,41 @@
+table Calendar
+	lineageTag: afb0f667-8293-4d00-b312-bfa8d82a472a
+
+	column Date
+		lineageTag: 193d0e60-eb43-431b-9211-fb2211e8a2db
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Date]
+
+		variation Variation
+			isDefault
+			relationship: 2fb1c50e-fd80-4408-b321-cbdb392559a1
+			defaultHierarchy: LocalDateTable_8bd7c8e8-365b-4716-8d41-699daad9a6ab.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year
+		lineageTag: 7843380a-d50e-405a-b1c2-a6ebc2126acf
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Year]
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthName
+		lineageTag: 89f5cb9b-4397-4475-8cc9-930cfcb72ef0
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [MonthName]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Calendar = calculated
+		mode: import
+		source =
+				ADDCOLUMNS(
+				  CALENDAR(DATE(2024,1,1), DATE(2024,12,31)),
+				  "Year", YEAR([Date]),
+				  "MonthName", FORMAT([Date], "mmmm")
+				)
+
