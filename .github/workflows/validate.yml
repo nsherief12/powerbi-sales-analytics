@@ -1,0 +1,30 @@
+name: Validate PBIP files
+
+on:
+  push:
+    branches: [main, dev, qlty]
+  pull_request:
+    branches: [main, dev, qlty]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate all JSON files parse correctly
+        shell: bash
+        run: |
+          find . -name "*.json" -print0 | while IFS= read -r -d '' file; do
+            echo "Checking $file"
+            python3 -m json.tool "$file" > /dev/null || exit 1
+          done
+
+      - name: Package project as build artifact
+        run: |
+          zip -r "powerbi-project-${{ github.sha }}.zip" Test.Report Test.SemanticModel Test.pbip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pbip-package-${{ github.sha }}
+          path: "powerbi-project-*.zip"
